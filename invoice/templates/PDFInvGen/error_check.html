@@ -1,0 +1,20 @@
+{% extends 'PDFInvGen/base.html' %}
+
+{% block content %}
+  {% for form in forms %}
+    {% if form.errors %}
+      {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }} - {{ field.name }}</strong>
+            </div>
+        {% endfor %}
+      {% endfor %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+{% endblock content %}

@@ -1,0 +1,51 @@
+{% extends "PDFInvGen/base.html" %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{% block title %}
+  Index
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+      <div class="message-row">
+        <div class="alert alert-success alert-dismissable">
+          <a href="#" class="close" data-dismiss="alert" aria-label=" close">&times;</a>
+          {{ message }}
+        </div>
+      </div>
+    {% else %}
+      {{ messsage }}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+<form method="POST" action="" class="form">
+  {% csrf_token %}
+  <div class="container">
+    <div class="row">
+        {% for name, form in forms %}
+          <h1>{{ name }}</h1>
+          {% include 'PDFInvGen/base_form.html' with form=form name=name %}
+        {% endfor %}
+      <button type="submit" class="btn-success">Submit for invoicing</button>
+    </div>
+  </div>
+</form>
+
+{% endblock content %}
+
+
+<!--<h1>Dealer</h1>
+{% bootstrap_form dealer_form %}
+<h1>Company</h1>
+{% bootstrap_form company_form %}
+<h1>Bank</h1>
+{% bootstrap_form bank_form %}
+<h1>Item</h1>
+{% bootstrap_form item_form %}
+<h1>Order</h1>
+{% bootstrap_form order_form %}
+-->

@@ -1,0 +1,99 @@
+{% load static %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+<link href="{% static 'PDFInvGen/css/invoice.css' %}" rel="stylesheet">
+<table>
+  <caption>INVOICE</caption>
+  <tr>
+    <th class="title-row">
+      Invoice Number</br>
+      Place</br>
+      Invoice Date</br>
+      Payment Due Date</br>
+    </th>
+    <td>
+      {{ invoice.number }}</br>
+      {{ invoice.place }}</br>
+      {{ invoice.date }}</br>
+      {{ invoice.payment_due_date }}</br>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th class="seller-buyer">
+      <b>Seller</b>
+    </th>
+    <th class="seller-buyer">
+      <b>Buyer</b>
+    </th>
+  </tr>
+  <tr>
+    <th>
+      </br>
+      <b>My Company:</b> {{ seller_company.name }}</br>
+      Address: {{seller_company.address }}</br>
+      My Address: {{ seller.address }}</br>
+      UIC: {{ seller.uic }}</br>
+      VAT: {{ seller.vat }}</br>
+      </br>
+      <b>Bank:</b> {{ seller_bank.name }}</br>
+      IBAN(EUR): {{ seller.iban }}
+    </th>
+    <td>
+      </br>
+      <b>Buyer Company:</b> {{ buyer_company.name }}</br>
+      Address: {{ buyer_company.address }}</br>
+      My Address: {{ buyer.address }}</br>
+      UIC: {{ buyer.uic }}</br>
+      VAT: {{ buyer.vat }}</br>
+      </br>
+      <b>Bank:</b> {{ buyer_bank.name }}</br>
+      IBAN(EUR): {{ buyer.iban }}
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th class="seller-buyer nr">
+      <b>Nr.</b>
+    </th>
+    <th class="seller-buyer desc">
+      <b>Description of Goods and/or Services</b>
+    </th>
+    <th class="seller-buyer quant">
+      <b>Quantity</b>
+    </th>
+    <th class="seller-buyer price">
+      <b>Unit Price</b><br>
+      <b>EUR</b>
+    </th>
+    <th class="seller-buyer price">
+      <b>Value</b></br>
+      <b>EUR</b>
+    </th>
+  </tr>
+  {% for item in items %}
+    <tr>
+      <td class="seller-buyer nr">
+        <b>{{ forloop.counter }}</b>
+      </td>
+      <td class="seller-buyer desc">
+        <b>{{ item.name }}: {{ item.description }}</b>
+      </th>
+      <td class="seller-buyer quant">
+        <b>{{ item.quantity }}</b>
+      </th>
+      <td class="seller-buyer price">
+        <b>{{ item.price }}</b>
+      </th>
+      <td class="seller-buyer price">
+        <b>{{ item.value }}</b>
+      </td>
+    </tr>
+  {% endfor %}
+</table>

@@ -1,0 +1,9 @@
+body {
+    padding-top: 50px;
+}
+
+.message-row {
+    padding-top: 35px;
+    margin-right: -15px;
+    margin-left: -15px;
+}

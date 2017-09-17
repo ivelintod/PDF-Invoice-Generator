@@ -1,0 +1,47 @@
+caption {
+    font-weight: bold;
+    text-align: center;
+}
+
+table {
+    margin-top: 10px;
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid black;
+}
+
+th {
+    width: 50%;
+    border: 1px solid black;
+    padding-left: 4px;
+    font-weight: normal;
+}
+
+td {
+    padding-left: 4px;
+}
+
+.title-row {
+    font-weight: bold;
+}
+
+.seller-buyer {
+    text-align: center
+}
+
+.nr {
+    width: 10%;
+}
+
+.desc {
+    width: 40%;
+}
+
+.quant {
+    width: 12%;
+}
+
+.price {
+    width: 13%;
+}

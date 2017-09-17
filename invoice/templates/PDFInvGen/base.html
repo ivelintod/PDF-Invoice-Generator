@@ -1,0 +1,42 @@
+{% load static %}
+{% load bootstrap3 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link href="{% static 'PDFInvGen/css/base.css' %}" rel="stylesheet">
+  <title>
+    {% block title %}
+    {% endblock title %}
+  </title>
+</head>
+<body>
+  <header class = "navbar navbar-inverse navbar-fixed-top" role = "banner">
+  <div class = "container">
+    <div class ="navbar-header">
+        <button type = "button" class= "navbar-toggle" data-toggle = "collapse" data-target = "#dropdown">
+            <span class = "sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <a href="{% url 'inv_gen:index' %}" class ="navbar-brand">Invoice Generator</a>
+    </div>
+
+    <div class = "collapse navbar-collapse" id = "dropdown">
+
+        <ul class = "nav navbar-nav navbar-right" role = "navigation">
+            <li><a href="{% url 'inv_gen:invoices' %}">Invoices</a></li>
+        </ul>
+
+    </div>
+  </div>
+  </header>
+  {% block content %}
+  {% endblock content %}
+</body>
+</html>
