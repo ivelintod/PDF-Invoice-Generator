@@ -8,6 +8,6 @@ Getting everyting ready:
 * Run `python manage.py runserver`
 * Fire up a browser of your preference and go to localhost:8000
 
-Remarks
+Remarks:
 * Buyer object hardcoded, because a more elegant way to introduce it has been needed, but not found yet
 * Dynamic formsets not working - need to check how to change TOTAL-FORMS value
