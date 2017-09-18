@@ -79,21 +79,74 @@
   </tr>
   {% for item in items %}
     <tr>
-      <td class="seller-buyer nr">
+      <th class="seller-buyer nr">
         <b>{{ forloop.counter }}</b>
-      </td>
-      <td class="seller-buyer desc">
+      </th>
+      <th class="seller-buyer desc">
         <b>{{ item.name }}: {{ item.description }}</b>
       </th>
-      <td class="seller-buyer quant">
+      <th class="seller-buyer quant">
         <b>{{ item.quantity }}</b>
       </th>
-      <td class="seller-buyer price">
+      <th class="seller-buyer price">
         <b>{{ item.price }}</b>
       </th>
-      <td class="seller-buyer price">
+      <th class="seller-buyer price">
         <b>{{ item.value }}</b>
-      </td>
+      </th>
     </tr>
   {% endfor %}
+  <tr>
+    <th class="seller-buyer nr">
+    </th>
+    <th class="seller-buyer desc">
+    </th>
+    <th class="seller-buyer quant">
+    </th>
+    <th class="seller-buyer price">
+      VAT EUR</br>
+      20%
+    </th>
+    <th class="seller-buyer price">
+    </th>
+  </tr>
+    <tr>
+    <th class="seller-buyer nr">
+    </th>
+    <th class="seller-buyer desc">
+    </th>
+    <th class="seller-buyer quant">
+    </th>
+    <th class="seller-buyer price">
+      <b>Total Amount</b></br>
+      <b>EUR</b>
+    </th>
+    <th class="seller-buyer price">
+      <b>{{ total_order_price }}</b>
+    </th>
+  </tr>
+  <tr>
+    <th colspan="5">
+      Comments:</br></br>
+      {{ invoice.order_comments }}
+    </th>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th class="seller-buyer">
+      <b>Signature and stamp</b>
+    </th>
+    <th class="seller-buyer">
+      <b>Signature of receipt</b>
+    </th>
+  </tr>
+  <tr>
+    <th class="seller-buyer">
+      Issued By: User
+    </th>
+    <th class="seller-buyer">
+    </th>
+  </tr>
 </table>

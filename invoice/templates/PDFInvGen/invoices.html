@@ -7,11 +7,15 @@
 {% block content %}
   <div class="container">
     <div class="row">
-      {% for invoice in invoices %}
-        <p>Invoice with number: {{ invoice.number }} -
-        <a href="{% url 'inv_gen:pdf_single_invoice' invoice.number %}">Generate PDF</a> -
-        <a href="{% url 'inv_gen:pdf_multiple_in_one_day_invoices' invoice.number %}">Generate PDF with all invoices with same date and company</a></p>
-      {% endfor %}
+      {% if invoices %}
+        {% for invoice in invoices %}
+          <p>Invoice with number: {{ invoice.number }} -
+          <a href="{% url 'inv_gen:pdf_single_invoice' invoice.number %}">Generate PDF</a> -
+          <a href="{% url 'inv_gen:pdf_multiple_in_one_day_invoices' invoice.number %}">Generate PDF with all invoices with same date and company</a></p>
+        {% endfor %}
+      {% else %}
+        <h1>No invoices are present</h1>
+      {% endif %}
     </div>
   </div>
 

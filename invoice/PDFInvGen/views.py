@@ -1,7 +1,5 @@
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django.forms.formsets import formset_factory
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
@@ -10,19 +8,26 @@ from django.conf import settings
 from functools import reduce
 import os
 from weasyprint import HTML, CSS
-from .models import Item, Dealer, Invoice
+from .models import Item, Dealer, Invoice, Company
 from .forms import DealerForm, CompanyForm, BankForm, ItemForm, InvoiceForm,\
     BaseItemFormSet
+
+
+CSS_FILE = os.path.join(settings.BASE_DIR,
+                        'static/PDFInvGen/css/invoice.css')
+
+BOOTSTRAP_FILE = os.path.join(settings.BASE_DIR,
+                              'static/PDFInvGen/css/bootstrap.css')
 
 
 def get_invoice_details(inv_number):
     invoice = get_object_or_404(Invoice, number=inv_number)
     seller = invoice.seller
-    seller_company = seller.company_set.first()
-    seller_bank = seller.bank_set.first()
+    seller_company = seller.company_set.last()
+    seller_bank = seller.bank_set.last()
     buyer = invoice.buyer
-    buyer_company = buyer.company_set.first()
-    buyer_bank = buyer.bank_set.first()
+    buyer_company = buyer.company_set.last()
+    buyer_bank = buyer.bank_set.last()
     items = invoice.item_set.all()
     return locals()
 
@@ -67,8 +72,6 @@ def index(request):
                 items.append(Item(name=name, description=description,
                                   quantity=quantity, price=price,
                                   value=value, invoice=invoice))
-            print(item_formset)
-            print(item_form)
             Item.objects.bulk_create(items)
             messages.success(request, "You have successfully submitted invoice information!")
 
@@ -97,11 +100,13 @@ def pdf_single_invoice(request, number):
     order_price = reduce(sum, (item.value for item in invoice_details['items']))
     total_order_price = 0.2 * float(order_price) + float(order_price)
     invoice_details.update({'total_order_price': total_order_price})
-    template_str = render_to_string('PDFInvGen/base_invoice.html', invoice_details)
+    template_str = render_to_string('PDFInvGen/base_invoice.html',
+                                    invoice_details)
     html = HTML(string=template_str)
-    css_file = os.path.join(settings.BASE_DIR, 'static/PDFInvGen/css/invoice.css')
-    bootstrap_file = os.path.join(settings.BASE_DIR, 'static/PDFInvGen/css/bootstrap.css')
-    html.write_pdf(target='/tmp/invoice.pdf', stylesheets=[CSS(filename=css_file), CSS(filename=bootstrap_file)])
+    html.write_pdf(target='/tmp/invoice.pdf',
+                   stylesheets=[CSS(filename=CSS_FILE),
+                                CSS(filename=BOOTSTRAP_FILE)])
+
     fs = FileSystemStorage('/tmp')
     with fs.open('invoice.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
@@ -112,17 +117,26 @@ def pdf_single_invoice(request, number):
 
 def pdf_multiple_in_one_day_invoices(request, number):
     invoice_details = get_invoice_details(number)
-    related_invoices = Invoice.objects.filter(date__date=invoice_details['invoice'].date.date())\
-                                      .filter(seller__company_set__first=invoice_details['seller'].company_set.first())\
-                                      .filter(buyer__company_set__first=invoice_details['buyer'].company_set.first())
+    temp_invoices = Invoice.objects.filter(date__date=invoice_details['invoice'].date.date())
+    seller_company_to_check = Company.objects.filter(owner=invoice_details['seller']).last()
+    buyer_company_to_check = Company.objects.filter(owner=invoice_details['buyer']).last()
+    related_invoices = (inv for inv in temp_invoices if
+                        seller_company_to_check.name == invoice_details['seller_company'].name
+                        and buyer_company_to_check.name == invoice_details['buyer_company'].name)
+
     for invoice in related_invoices:
-        invoice_details['items'].extend(invoice.item_set.all())
-    order_price = reduce(sum, (item.value for item in invoice_details['items']))
+        invoice_details['items'] = invoice_details['items'] | invoice.item_set.all()
+
+    order_price = sum((item.value for item in invoice_details['items']))
     total_order_price = 0.2 * float(order_price) + float(order_price)
     invoice_details.update({'total_order_price': total_order_price})
-    template_str = render_to_string('PDFInvGen/base_invoice.html', invoice_details)
+    template_str = render_to_string('PDFInvGen/base_invoice.html',
+                                    invoice_details)
     html = HTML(string=template_str)
-    html.write_pdf(target='/tmp/invoice.pdf')
+    html.write_pdf(target='/tmp/invoice.pdf',
+                   stylesheets=[CSS(filename=CSS_FILE),
+                                CSS(filename=BOOTSTRAP_FILE)])
+
     fs = FileSystemStorage('/tmp')
     with fs.open('invoice.pdf') as pdf:
         response = HttpResponse(pdf, content_type='application/pdf')
