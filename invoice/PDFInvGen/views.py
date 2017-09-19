@@ -59,7 +59,7 @@ def index(request):
 
             invoice = invoice_form.save(commit=False)
             invoice.seller = seller
-            invoice.buyer = Dealer.objects.get(pk=5)
+            invoice.buyer = Dealer.objects.get(pk=1)
             invoice.save()
 
             items = []
