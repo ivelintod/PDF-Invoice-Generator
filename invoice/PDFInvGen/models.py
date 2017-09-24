@@ -45,7 +45,8 @@ class Invoice(models.Model):
     date = models.DateTimeField(default=timezone.now)
     payment_due_date = models.DateTimeField()
     order_comments = models.TextField(max_length=150, null=True)
-    seller = models.ForeignKey(Dealer, on_delete=models.CASCADE, related_name='invoice_sell')
+    seller = models.ForeignKey(Dealer, on_delete=models.CASCADE,
+                               related_name='invoice_sell')
     buyer = models.ForeignKey(Dealer, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):

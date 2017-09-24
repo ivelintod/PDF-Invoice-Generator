@@ -5,10 +5,9 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.conf import settings
-from functools import reduce
 import os
 from weasyprint import HTML, CSS
-from .models import Item, Dealer, Invoice, Company
+from .models import Item, Dealer, Invoice, Company, Bank
 from .forms import DealerForm, CompanyForm, BankForm, ItemForm, InvoiceForm,\
     BaseItemFormSet
 
@@ -44,18 +43,28 @@ def index(request):
         if seller_form.is_valid() and company_form.is_valid()\
            and bank_form.is_valid() and item_formset.is_valid()\
            and invoice_form.is_valid():
-            seller = seller_form.save(commit=False)
-            seller.iban = seller_form.cleaned_data['iban']
-            seller.vat = seller_form.cleaned_data['vat']
-            seller.save()
 
-            company = company_form.save(commit=False)
-            company.owner = seller
-            company.save()
+            try:
+                seller = Dealer.objects.get(iban=seller_form.cleaned_data['iban'])
+            except Dealer.DoesNotExist:
+                seller = seller_form.save(commit=False)
+                seller.iban = seller_form.cleaned_data['iban']
+                seller.vat = seller_form.cleaned_data['vat']
+                seller.save()
 
-            bank = bank_form.save(commit=False)
-            bank.client = seller
-            bank.save()
+            try:
+                company = Company.objects.get(owner=seller)
+            except Company.DoesNotExist:
+                company = company_form.save(commit=False)
+                company.owner = seller
+                company.save()
+
+            try:
+                bank = Bank.objects.get(client=seller)
+            except Bank.DoesNotExist:
+                bank = bank_form.save(commit=False)
+                bank.client = seller
+                bank.save()
 
             invoice = invoice_form.save(commit=False)
             invoice.seller = seller
@@ -73,6 +82,7 @@ def index(request):
                                   quantity=quantity, price=price,
                                   value=value, invoice=invoice))
             Item.objects.bulk_create(items)
+            print('formichkite', item_formset)
             messages.success(request, "You have successfully submitted invoice information!")
 
     else:
@@ -87,7 +97,8 @@ def index(request):
                              ('Company', company_form),
                              ('Bank', bank_form),
                              ('Items', item_formset),
-                             ('Invoice Details', invoice_form)]})
+                             ('Invoice Details', invoice_form)],
+                   'formset_len': len(item_formset)})
 
 
 def invoices(request):
@@ -97,7 +108,7 @@ def invoices(request):
 
 def pdf_single_invoice(request, number):
     invoice_details = get_invoice_details(number)
-    order_price = reduce(sum, (item.value for item in invoice_details['items']))
+    order_price = sum(item.value for item in invoice_details['items'])
     total_order_price = 0.2 * float(order_price) + float(order_price)
     invoice_details.update({'total_order_price': total_order_price})
     template_str = render_to_string('PDFInvGen/base_invoice.html',
@@ -120,9 +131,16 @@ def pdf_multiple_in_one_day_invoices(request, number):
     temp_invoices = Invoice.objects.filter(date__date=invoice_details['invoice'].date.date())
     seller_company_to_check = Company.objects.filter(owner=invoice_details['seller']).last()
     buyer_company_to_check = Company.objects.filter(owner=invoice_details['buyer']).last()
-    related_invoices = (inv for inv in temp_invoices if
-                        seller_company_to_check.name == invoice_details['seller_company'].name
-                        and buyer_company_to_check.name == invoice_details['buyer_company'].name)
+    related_invoices = []
+    for inv in temp_invoices:
+        candidate = get_invoice_details(inv.number)
+        if invoice_details['seller_company'] == candidate['seller_company']\
+            and invoice_details['buyer_company'] == candidate['buyer_company']:
+            related_invoices.append(inv)
+
+    #related_invoices = (inv for inv in temp_invoices if
+    #                    seller_company_to_check == invoice_details['seller_company']
+    #                    and buyer_company_to_check == invoice_details['buyer_company'])
 
     for invoice in related_invoices:
         invoice_details['items'] = invoice_details['items'] | invoice.item_set.all()
