@@ -53,14 +53,16 @@ def index(request):
                 seller.save()
 
             try:
-                company = Company.objects.get(owner=seller)
+                company_name = company_form.cleaned_data['name']
+                company = Company.objects.get(name=company_name, owner=seller)
             except Company.DoesNotExist:
                 company = company_form.save(commit=False)
                 company.owner = seller
                 company.save()
 
             try:
-                bank = Bank.objects.get(client=seller)
+                bank_name = company_form.cleaned_data['name']
+                bank = Bank.objects.get(name=bank_name, client=seller)
             except Bank.DoesNotExist:
                 bank = bank_form.save(commit=False)
                 bank.client = seller
